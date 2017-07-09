@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 /**
  * Created by mateusz on 09.07.2017.
@@ -14,7 +15,7 @@ public class Post {
     private String id;
     private String title;
     private String content;
-    //TODO Tags
+    private ArrayList<Tag> tags;
     private String author;
     private int year;
     private int month;
@@ -30,9 +31,18 @@ public class Post {
         this.day = ld.getDayOfMonth();
     }
 
-    public String getId() {
-        return id;
+    public Post(String title, String content, ArrayList<Tag> tags, String author) {
+        this.title = title;
+        this.content = content;
+        this.author = author;
+        this.tags = tags;
+        LocalDate ld = LocalDate.now();
+        this.year = ld.getYear();
+        this.month = ld.getMonthValue();
+        this.day = ld.getDayOfMonth();
     }
+
+    public Post() {}
 
     public void setId(String id) {
         this.id = id;
@@ -40,6 +50,10 @@ public class Post {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public void setTitle(String title) {
@@ -52,6 +66,14 @@ public class Post {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public ArrayList<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(ArrayList<Tag> tags) {
+        this.tags = tags;
     }
 
     public String getAuthor() {
