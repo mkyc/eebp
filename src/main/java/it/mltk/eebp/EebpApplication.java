@@ -45,5 +45,8 @@ public class EebpApplication implements CommandLineRunner{
 		List<Post> result = postRepository.findAllByTagsName("java");
 		System.out.println(result.size());
 
+		List<Post> res2 = postRepository.findInTitleAndContent("title");
+		System.out.println(res2.size());
+
 	}
 }
