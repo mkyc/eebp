@@ -16,6 +16,5 @@ public interface PostRepository extends MongoRepository<Post, String> {
     @Query("{$text: {$search: ?0}}, {score: {$meta: 'textScore'}}).sort({score:{$meta:'textScore'}}")
     List<Post> findInTitleAndContent(String value);
 
-    List<Post> findAllByTagsName(String name);
-
+    List<Post> findAllByTags_Name(String name);
 }

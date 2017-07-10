@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div th:fragment="posts">
+    <section th:each="post :${posts}" class="post">
+        <header class="post-header">
+
+            <h2 class="post-title" th:text="${post.title}">Title</h2>
+
+            <p class="post-meta">
+                By <a href="#" class="post-author" th:text="${post.author}">Author</a> under
+                <span th:each="tag : ${post.tags}">
+                <a class="post-category post-category-design" href="#" th:text="${tag.name}">Tag</a>
+            </span>
+            </p>
+        </header>
+
+        <div class="post-description">
+            <p th:text="${post.content}">
+                Content
+            </p>
+        </div>
+    </section>
+</div>
+
+</body>
+
+</html>

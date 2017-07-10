@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 /**
@@ -26,12 +28,16 @@ public @Data class Post {
     private int year;
     private int month;
     private int day;
+    private LocalTime timestamp;
 
     public Post(String title, String content, String author) {
         this.title = title;
         this.content = content;
         this.author = author;
-        LocalDate ld = LocalDate.now();
+        LocalDateTime ldt = LocalDateTime.now();
+        LocalTime lt = ldt.toLocalTime();
+        LocalDate ld = ldt.toLocalDate();
+        this.timestamp = lt;
         this.year = ld.getYear();
         this.month = ld.getMonthValue();
         this.day = ld.getDayOfMonth();
@@ -42,7 +48,10 @@ public @Data class Post {
         this.content = content;
         this.author = author;
         this.tags = tags;
-        LocalDate ld = LocalDate.now();
+        LocalDateTime ldt = LocalDateTime.now();
+        LocalTime lt = ldt.toLocalTime();
+        LocalDate ld = ldt.toLocalDate();
+        this.timestamp = lt;
         this.year = ld.getYear();
         this.month = ld.getMonthValue();
         this.day = ld.getDayOfMonth();
