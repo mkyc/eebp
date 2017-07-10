@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -28,5 +29,23 @@ public class BlogController {
         Pageable limit = new PageRequest(pageNum,10);
         model.addAttribute("posts", postRepository.findAll(limit));
         return "main";
+    }
+
+    @RequestMapping("/{year}/{month}/{day}/{title}")
+    public String exactPost(@PathVariable String year,
+                            @PathVariable String month,
+                            @PathVariable String day,
+                            @PathVariable String title,
+                            Model model) {
+        int yearNum = 2017;
+        int monthNum = 7;
+        int dayNum = 10;
+        try {
+            yearNum = Integer.valueOf(year);
+            monthNum = Integer.valueOf(month);
+            dayNum = Integer.valueOf(day);
+        } catch (NumberFormatException e) {}
+        model.addAttribute("post", postRepository.findOneByYearAndMonthAndDayAndUrlTitle(yearNum, monthNum, dayNum, title));
+        return "post";
     }
 }

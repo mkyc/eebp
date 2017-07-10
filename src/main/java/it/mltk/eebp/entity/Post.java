@@ -29,19 +29,7 @@ public @Data class Post {
     private int month;
     private int day;
     private LocalTime timestamp;
-
-    public Post(String title, String content, String author) {
-        this.title = title;
-        this.content = content;
-        this.author = author;
-        LocalDateTime ldt = LocalDateTime.now();
-        LocalTime lt = ldt.toLocalTime();
-        LocalDate ld = ldt.toLocalDate();
-        this.timestamp = lt;
-        this.year = ld.getYear();
-        this.month = ld.getMonthValue();
-        this.day = ld.getDayOfMonth();
-    }
+    private String urlTitle;
 
     public Post(String title, String content, ArrayList<Tag> tags, String author) {
         this.title = title;
@@ -55,7 +43,6 @@ public @Data class Post {
         this.year = ld.getYear();
         this.month = ld.getMonthValue();
         this.day = ld.getDayOfMonth();
+        this.urlTitle = title.replaceAll("\\W", "");
     }
-
-    public Post() {}
 }
