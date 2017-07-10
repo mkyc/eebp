@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface PostRepository extends MongoRepository<Post, String> {
 
-    public Post findByTitle(String title);
+    Post findByTitle(String title);
 
     @Query("{$text: {$search: ?0}}, {score: {$meta: 'textScore'}}).sort({score:{$meta:'textScore'}}")
     List<Post> findInTitleAndContent(String value);
