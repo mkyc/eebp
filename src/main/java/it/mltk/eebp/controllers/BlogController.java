@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Created by mateusz on 10.07.2017.
@@ -19,9 +20,12 @@ public class BlogController {
     private PostRepository postRepository;
 
     @RequestMapping("/")
-    public String recentPosts(Model model) {
-        //TODO change to page request from parameters
-        Pageable limit = new PageRequest(0,10);
+    public String recentPosts(@RequestParam(value = "page", defaultValue = "0", required = false) String page, Model model) {
+        Integer pageNum = 0;
+        try{
+            pageNum = Integer.valueOf(page);
+        } catch (NumberFormatException e) {}
+        Pageable limit = new PageRequest(pageNum,10);
         model.addAttribute("posts", postRepository.findAll(limit));
         return "main";
     }

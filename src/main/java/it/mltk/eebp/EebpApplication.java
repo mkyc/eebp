@@ -23,14 +23,12 @@ public class EebpApplication implements CommandLineRunner{
 	public void run(String... strings) throws Exception {
 		postService.clean();
 
-		postService.createPost("How to create something",
-				"here is a content prepared with text",
-				"author1",
-				"java", "test");
-		postService.createPost("Do something in bash",
-				"here goes a code <br /><code>code</code><br /> and code ended",
-				"author2",
-				"java", "foo");
+		for(int i = 0; i<50; i++) {
+			postService.createPost("Do something in bash" + i,
+					"here goes a code <br /><code>code</code><br /> and code ended",
+					"author" + i,
+					"java", "spring", "spring boot", "azure", "kubernetes", "bash", "awk", "sed");
+		}
 
 	}
 }

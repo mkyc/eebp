@@ -14,13 +14,13 @@
             <p class="post-meta">
                 By <a href="#" class="post-author" th:text="${post.author}">Author</a> under
                 <span th:each="tag : ${post.tags}">
-                <a class="post-category post-category-design" href="#" th:text="${tag.name}">Tag</a>
+                <a th:class="'post-category ' + ${tag.style}" href="#" th:text="${tag.name}">Tag</a>
             </span>
             </p>
         </header>
 
         <div class="post-description">
-            <p th:text="${post.content}">
+            <p th:utext="${post.content}">
                 Content
             </p>
         </div>
