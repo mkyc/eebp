@@ -38,6 +38,11 @@
 
         <div class="posts" th:include="posts :: posts"></div>
 
+        <div>
+            <a th:unless="${first}" th:href="@{/(page=${page-1})}">Prevoius</a>
+            <a th:unless="${last}" th:href="@{/(page=${page+1})}" style="float: right">Next</a>
+        </div>
+
         <div class="footer" th:include="footer :: copy"></div>
     </div>
 </div>

@@ -23,9 +23,24 @@ public class EebpApplication implements CommandLineRunner{
 	public void run(String... strings) throws Exception {
 		postService.clean();
 
-		for(int i = 0; i<50; i++) {
-			postService.createPost("Do something in bash" + i,
-					"here goes a code <br /><code>code</code><br /> and code ended",
+		for(int i = 0; i<55; i++) {
+			postService.createPost("Do something in bash " + i,
+					"there is a long story there is a long story there is a long story " +
+							"there is a long story there is a long story there is a long story " +
+							"there is a long story there is a long story there is a long story " +
+							"there is a long story there is a long story there is a long story " +
+							"here goes a code <br /><code>code</code><br /> and code ended" +
+							"there is a long story there is a long story there is a long story " +
+							"there is a long story there is a long story there is a long story " +
+							"there is a long story and break <br /> there is a long story " +
+							"there is a long story there is a long story there is a long story " +
+							"there is a long story there is a long story there is a long story " +
+							"there is a long story there is a long story and break <br />" +
+							"there is a long story there is a long story there is a long story " +
+							"there is a long story there is a long story there is a long story " +
+							"there is a long story <p> there is a long story there is a long story " +
+							"there is a long story there is a long story </p> " +
+							"there is a long story there is a long story there is a long story ",
 					"author" + i,
 					"java", "spring", "spring boot", "azure", "kubernetes", "bash", "awk", "sed");
 		}

@@ -26,8 +26,14 @@ public class BlogController {
         try{
             pageNum = Integer.valueOf(page);
         } catch (NumberFormatException e) {}
-        Pageable limit = new PageRequest(pageNum,10);
-        model.addAttribute("posts", postRepository.findAll(limit));
+        Pageable window = new PageRequest(pageNum,10);
+        model.addAttribute("posts", postRepository.findAll(window));
+        boolean first = pageNum.equals(0) ? true : false;
+        long size = postRepository.count();
+        boolean last = (size - (pageNum * 10)) <= 10 ? true : false;
+        model.addAttribute("first", first);
+        model.addAttribute("last", last);
+        model.addAttribute("page", pageNum);
         return "main";
     }
 

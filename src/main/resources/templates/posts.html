@@ -23,7 +23,7 @@
         </header>
 
         <div class="post-description">
-            <p th:utext="${post.content}">
+            <p th:text="${#strings.substring(post.content,0,250)} + '...'">
                 Content
             </p>
         </div>
