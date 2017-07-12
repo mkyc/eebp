@@ -5,10 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 
 @SpringBootApplication
-public class EebpApplication implements CommandLineRunner{
+@EnableOAuth2Sso
+public class EebpApplication extends WebSecurityConfigurerAdapter implements CommandLineRunner{
 
 
 	@Autowired
@@ -17,6 +21,17 @@ public class EebpApplication implements CommandLineRunner{
 
 	public static void main(String[] args) {
 		SpringApplication.run(EebpApplication.class, args);
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+				.antMatcher("/**")
+				.authorizeRequests()
+				.antMatchers("/", "/post/**")
+				.permitAll()
+				.anyRequest()
+				.authenticated();
 	}
 
 	@Override

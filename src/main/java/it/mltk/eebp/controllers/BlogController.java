@@ -4,11 +4,14 @@ import it.mltk.eebp.repo.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.LinkedHashMap;
 
 /**
  * Created by mateusz on 10.07.2017.
@@ -37,7 +40,7 @@ public class BlogController {
         return "main";
     }
 
-    @RequestMapping("/{year}/{month}/{day}/{title}")
+    @RequestMapping("/post/{year}/{month}/{day}/{title}")
     public String exactPost(@PathVariable String year,
                             @PathVariable String month,
                             @PathVariable String day,
@@ -53,5 +56,14 @@ public class BlogController {
         } catch (NumberFormatException e) {}
         model.addAttribute("post", postRepository.findOneByYearAndMonthAndDayAndUrlTitle(yearNum, monthNum, dayNum, title));
         return "post";
+    }
+
+    @RequestMapping("/user")
+    public String user(OAuth2Authentication authentication, Model model) {
+
+        LinkedHashMap<String, String> details = (LinkedHashMap<String, String>)authentication.getUserAuthentication().getDetails();
+
+        model.addAttribute("user", details.get("email"));
+        return "user";
     }
 }

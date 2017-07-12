@@ -9,7 +9,7 @@
     <section th:each="post :${posts}" class="post">
         <header class="post-header">
 
-            <a href="post.html" th:href="@{/{year}/{month}/{day}/{title}(year=${post.year},month=${post.month},day=${post.day},title=${post.urlTitle})}">
+            <a href="post.html" th:href="@{/post/{year}/{month}/{day}/{title}(year=${post.year},month=${post.month},day=${post.day},title=${post.urlTitle})}">
                 <h2 class="post-title" th:text="${post.title}">Title</h2>
             </a>
 
