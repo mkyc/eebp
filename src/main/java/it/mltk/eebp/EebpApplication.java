@@ -1,43 +1,42 @@
 package it.mltk.eebp;
 
+import it.mltk.eebp.entity.GitHubContent;
+import it.mltk.eebp.services.GitHubService;
 import it.mltk.eebp.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+
+import java.util.List;
 
 
 @SpringBootApplication
-@EnableOAuth2Sso
-@EnableRedisHttpSession
-public class EebpApplication extends WebSecurityConfigurerAdapter implements CommandLineRunner{
+public class EebpApplication implements CommandLineRunner{
 
+
+    @Value("${eebp.clientId}")
+    private String clientId;
+    @Value("${eebp.clientSecret}")
+    private String clientSecret;
+    @Value("${eebp.repoName}")
+    private String repoName;
+    @Value("${eebp.repoUser}")
+    private String repoUser;
+    @Value("${eebp.repoMainDir}")
+    private String repoMainDir;
 
 	@Autowired
 	private PostService postService;
+    @Autowired
+    private GitHubService gitHubService;
 
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 		SpringApplication.run(EebpApplication.class, args);
 	}
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
-				.antMatcher("/**")
-				.authorizeRequests()
-				.antMatchers("/", "/post/**", "/login")
-				.permitAll()
-				.anyRequest()
-				.authenticated()
-				.and()
-				.exceptionHandling()
-				.accessDeniedPage("/");
-	}
 
 	@Override
 	public void run(String... strings) throws Exception {
@@ -65,5 +64,9 @@ public class EebpApplication extends WebSecurityConfigurerAdapter implements Com
 					"java", "spring", "spring boot", "azure", "kubernetes", "bash", "awk", "sed");
 		}
 
+        List<GitHubContent> res = gitHubService.getFiles(repoUser, repoName, repoMainDir, clientId, clientSecret);
+        for(GitHubContent ghc : res) {
+            System.out.println(ghc.getName() + " " + ghc.getType() + " " + ghc.getPath());
+        }
 	}
 }
