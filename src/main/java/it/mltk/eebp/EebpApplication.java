@@ -8,10 +8,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 
 @SpringBootApplication
 @EnableOAuth2Sso
+@EnableRedisHttpSession
 public class EebpApplication extends WebSecurityConfigurerAdapter implements CommandLineRunner{
 
 
@@ -28,17 +30,20 @@ public class EebpApplication extends WebSecurityConfigurerAdapter implements Com
 		http
 				.antMatcher("/**")
 				.authorizeRequests()
-				.antMatchers("/", "/post/**")
+				.antMatchers("/", "/post/**", "/login")
 				.permitAll()
 				.anyRequest()
-				.authenticated();
+				.authenticated()
+				.and()
+				.exceptionHandling()
+				.accessDeniedPage("/");
 	}
 
 	@Override
 	public void run(String... strings) throws Exception {
 		postService.clean();
 
-		for(int i = 0; i<55; i++) {
+		for(int i = 0; i<25; i++) {
 			postService.createPost("Do something in bash " + i,
 					"there is a long story there is a long story there is a long story " +
 							"there is a long story there is a long story there is a long story " +

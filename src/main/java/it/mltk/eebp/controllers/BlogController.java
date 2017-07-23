@@ -4,6 +4,7 @@ import it.mltk.eebp.repo.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,10 +60,10 @@ public class BlogController {
     }
 
     @RequestMapping("/user")
+    @PreAuthorize("hasPermission('mateusz.kyc', 'gmail.com')")
     public String user(OAuth2Authentication authentication, Model model) {
-
         LinkedHashMap<String, String> details = (LinkedHashMap<String, String>)authentication.getUserAuthentication().getDetails();
-
+        System.out.println(authentication.getName());
         model.addAttribute("user", details.get("email"));
         return "user";
     }
