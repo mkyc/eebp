@@ -1,5 +1,7 @@
 package it.mltk.eebp;
 
+import it.mltk.eebp.entity.GitHubCommit;
+import it.mltk.eebp.entity.GitHubCommitter;
 import it.mltk.eebp.entity.GitHubContent;
 import it.mltk.eebp.services.GitHubService;
 import it.mltk.eebp.services.PostService;
@@ -44,35 +46,25 @@ public class EebpApplication implements CommandLineRunner{
 	@Override
 	public void run(String... strings) throws Exception {
 		postService.clean();
-
-		for(int i = 0; i<25; i++) {
-			postService.createPost("Do something in bash " + i,
-					"there is a long story there is a long story there is a long story " +
-							"there is a long story there is a long story there is a long story " +
-							"there is a long story there is a long story there is a long story " +
-							"there is a long story there is a long story there is a long story " +
-							"here goes a code <br /><code>code</code><br /> and code ended" +
-							"there is a long story there is a long story there is a long story " +
-							"there is a long story there is a long story there is a long story " +
-							"there is a long story and break <br /> there is a long story " +
-							"there is a long story there is a long story there is a long story " +
-							"there is a long story there is a long story there is a long story " +
-							"there is a long story there is a long story and break <br />" +
-							"there is a long story there is a long story there is a long story " +
-							"there is a long story there is a long story there is a long story " +
-							"there is a long story <p> there is a long story there is a long story " +
-							"there is a long story there is a long story </p> " +
-							"there is a long story there is a long story there is a long story ",
-					"author" + i,
-					"java", "spring", "spring boot", "azure", "kubernetes", "bash", "awk", "sed");
-		}
-
         List<GitHubContent> res = gitHubService.getFiles(repoUser, repoName, repoMainDir, clientId, clientSecret);
         for(GitHubContent ghc : res) {
-            System.out.println(ghc.getName() + " " + ghc.getType() + " " + ghc.getPath() + " " + ghc.getDownloadUrl());
+            //System.out.println(ghc);
 			URLConnection connection = new URL(ghc.getDownloadUrl()).openConnection();
 			String text = new Scanner(connection.getInputStream()).useDelimiter("\\Z").next();
 			//System.out.println(text);
+			List<GitHubCommit> list = gitHubService.getCommits(repoUser, repoName, ghc.getPath(), clientId, clientSecret);
+			GitHubCommitter author = null;
+			for(GitHubCommit ghco : list) {
+				//System.out.println(ghco);
+				author = ghco.getAuthor();
+			}
+			postService.createPost(ghc.getName(), text, author.getLogin());
 		}
+
+//		TODO make this better version
+//      GitHubContent article = gitHubService.getArticlesRoot(repoUser, repoName, repoMainDir, clientId, clientSecret);
+//		GitHubTree ght = gitHubService.getTree(repoUser, repoName, article.getSha(), clientId, clientSecret);
+//		System.out.println(ght.getSha() + " " + ght.getTruncated() + " " + ght.getTree());
+
 	}
 }
