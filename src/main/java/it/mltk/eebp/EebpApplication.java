@@ -9,7 +9,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
+import java.util.Scanner;
 
 
 @SpringBootApplication
@@ -66,7 +69,10 @@ public class EebpApplication implements CommandLineRunner{
 
         List<GitHubContent> res = gitHubService.getFiles(repoUser, repoName, repoMainDir, clientId, clientSecret);
         for(GitHubContent ghc : res) {
-            System.out.println(ghc.getName() + " " + ghc.getType() + " " + ghc.getPath());
-        }
+            System.out.println(ghc.getName() + " " + ghc.getType() + " " + ghc.getPath() + " " + ghc.getDownloadUrl());
+			URLConnection connection = new URL(ghc.getDownloadUrl()).openConnection();
+			String text = new Scanner(connection.getInputStream()).useDelimiter("\\Z").next();
+			//System.out.println(text);
+		}
 	}
 }

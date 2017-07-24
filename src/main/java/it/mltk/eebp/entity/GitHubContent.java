@@ -1,5 +1,6 @@
 package it.mltk.eebp.entity;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,4 +11,6 @@ public class GitHubContent {
     private String sha;
     private String type;
     private String path;
+    @SerializedName("download_url")
+    private String downloadUrl;
 }

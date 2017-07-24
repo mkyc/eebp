@@ -2,6 +2,8 @@ package it.mltk.eebp.services;
 
 import it.mltk.eebp.entity.GitHubContent;
 import it.mltk.eebp.retrofit.GitHubRetrofit;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.springframework.stereotype.Component;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -15,15 +17,20 @@ import java.util.List;
 public class GitHubService {
 
     public static final String API_URL = "https://api.github.com";
+    public static final HttpLoggingInterceptor.Level level = HttpLoggingInterceptor.Level.BODY;
 
     Retrofit retrofit;
     GitHubRetrofit github;
 
 
     public GitHubService() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(level);
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         retrofit = new Retrofit.Builder()
                 .baseUrl(API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient.build())
                 .build();
         github = retrofit.create(GitHubRetrofit.class);
 
