@@ -3,6 +3,8 @@ package it.mltk.eebp;
 import it.mltk.eebp.entity.GitHubCommit;
 import it.mltk.eebp.entity.GitHubCommitter;
 import it.mltk.eebp.entity.GitHubContent;
+import it.mltk.eebp.entity.GitHubTree;
+import it.mltk.eebp.services.FlexmarkService;
 import it.mltk.eebp.services.GitHubService;
 import it.mltk.eebp.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +38,11 @@ public class EebpApplication implements CommandLineRunner{
 	private PostService postService;
     @Autowired
     private GitHubService gitHubService;
+	@Autowired
+	private FlexmarkService flexmarkService;
 
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 		SpringApplication.run(EebpApplication.class, args);
 	}
 
@@ -58,13 +62,14 @@ public class EebpApplication implements CommandLineRunner{
 				//System.out.println(ghco);
 				author = ghco.getAuthor();
 			}
-			postService.createPost(ghc.getName(), text, author.getLogin());
+			//TODO add date parameters to post from ghc path
+			postService.createPost(text.substring(0, 20).replaceAll("\\W", ""), flexmarkService.parseMarkdown(text), author.getLogin());
 		}
 
 //		TODO make this better version
-//      GitHubContent article = gitHubService.getArticlesRoot(repoUser, repoName, repoMainDir, clientId, clientSecret);
-//		GitHubTree ght = gitHubService.getTree(repoUser, repoName, article.getSha(), clientId, clientSecret);
-//		System.out.println(ght.getSha() + " " + ght.getTruncated() + " " + ght.getTree());
+      GitHubContent article = gitHubService.getArticlesRoot(repoUser, repoName, repoMainDir, clientId, clientSecret);
+		GitHubTree ght = gitHubService.getTree(repoUser, repoName, article.getSha(), clientId, clientSecret);
+		System.out.println(ght);
 
 	}
 }
