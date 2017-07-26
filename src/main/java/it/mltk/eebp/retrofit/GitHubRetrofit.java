@@ -15,7 +15,15 @@ public interface GitHubRetrofit {
     Call<List<GitHubContent>> repoContent(
             @Path("user") String user,
             @Path("repo") String repo,
-            @Path("path") String path,
+            @Path(value = "path") String path,
+            @Query("client_id") String clientId,
+            @Query("client_secret") String clientSecret);
+
+    @GET("repos/{user}/{repo}/contents/{path}")
+    Call<GitHubContent> repoSingleContent(
+            @Path("user") String user,
+            @Path("repo") String repo,
+            @Path(value = "path", encoded = true) String path,
             @Query("client_id") String clientId,
             @Query("client_secret") String clientSecret);
 

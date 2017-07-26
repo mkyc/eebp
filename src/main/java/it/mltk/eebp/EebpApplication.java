@@ -1,9 +1,6 @@
 package it.mltk.eebp;
 
-import it.mltk.eebp.entity.GitHubCommit;
-import it.mltk.eebp.entity.GitHubCommitter;
-import it.mltk.eebp.entity.GitHubContent;
-import it.mltk.eebp.entity.GitHubTree;
+import it.mltk.eebp.entity.*;
 import it.mltk.eebp.services.FlexmarkService;
 import it.mltk.eebp.services.GitHubService;
 import it.mltk.eebp.services.PostService;
@@ -52,24 +49,31 @@ public class EebpApplication implements CommandLineRunner{
 		postService.clean();
         List<GitHubContent> res = gitHubService.getFiles(repoUser, repoName, repoMainDir, clientId, clientSecret);
         for(GitHubContent ghc : res) {
-            //System.out.println(ghc);
+        	Post post = new Post();
+            System.out.println(ghc);
 			URLConnection connection = new URL(ghc.getDownloadUrl()).openConnection();
 			String text = new Scanner(connection.getInputStream()).useDelimiter("\\Z").next();
-			//System.out.println(text);
+			post.setContent(text);
+			//System.out.println("title: " + text.substring(0, text.indexOf(System.getProperty("line.separator")) + 1));
 			List<GitHubCommit> list = gitHubService.getCommits(repoUser, repoName, ghc.getPath(), clientId, clientSecret);
 			GitHubCommitter author = null;
 			for(GitHubCommit ghco : list) {
 				//System.out.println(ghco);
 				author = ghco.getAuthor();
+				post.setAuthor(author.getLogin());
 			}
-			//TODO add date parameters to post from ghc path
-			postService.createPost(text.substring(0, 20).replaceAll("\\W", ""), flexmarkService.parseMarkdown(text), author.getLogin());
+			String title = text.substring(0, text.indexOf(System.getProperty("line.separator"))).replaceAll("[^\\w\\d\\s]", "").trim();
+			post.setTitle(title);
+
+            //TODO add date parameters to post from ghc path
+			postService.createPost(title, flexmarkService.parseMarkdown(text), author.getLogin());
 		}
 
 //		TODO make this better version
-      GitHubContent article = gitHubService.getArticlesRoot(repoUser, repoName, repoMainDir, clientId, clientSecret);
+        GitHubContent article = gitHubService.getArticlesRoot(repoUser, repoName, repoMainDir, clientId, clientSecret);
 		GitHubTree ght = gitHubService.getTree(repoUser, repoName, article.getSha(), clientId, clientSecret);
 		System.out.println(ght);
 
+		gitHubService.extractPosts(ght, repoUser, repoName, clientId, clientSecret);
 	}
 }

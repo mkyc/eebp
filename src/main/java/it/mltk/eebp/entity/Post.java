@@ -1,6 +1,7 @@
 package it.mltk.eebp.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +14,7 @@ import java.util.ArrayList;
  * Created by mateusz on 09.07.2017.
  */
 @Document
+@NoArgsConstructor
 public @Data class Post {
     @Id
     private String id;

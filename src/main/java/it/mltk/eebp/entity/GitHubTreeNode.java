@@ -8,4 +8,5 @@ import lombok.Data;
 public class GitHubTreeNode {
     private String path;
     private String type;
+    private String sha;
 }
