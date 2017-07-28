@@ -1,6 +1,7 @@
 package it.mltk.eebp;
 
-import it.mltk.eebp.entity.*;
+import it.mltk.eebp.entity.GitHubContent;
+import it.mltk.eebp.entity.GitHubTree;
 import it.mltk.eebp.services.FlexmarkService;
 import it.mltk.eebp.services.GitHubService;
 import it.mltk.eebp.services.PostService;
@@ -9,11 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.List;
-import java.util.Scanner;
 
 
 @SpringBootApplication
@@ -47,27 +43,27 @@ public class EebpApplication implements CommandLineRunner{
 	@Override
 	public void run(String... strings) throws Exception {
 		postService.clean();
-        List<GitHubContent> res = gitHubService.getFiles(repoUser, repoName, repoMainDir, clientId, clientSecret);
-        for(GitHubContent ghc : res) {
-        	Post post = new Post();
-            System.out.println(ghc);
-			URLConnection connection = new URL(ghc.getDownloadUrl()).openConnection();
-			String text = new Scanner(connection.getInputStream()).useDelimiter("\\Z").next();
-			post.setContent(text);
-			//System.out.println("title: " + text.substring(0, text.indexOf(System.getProperty("line.separator")) + 1));
-			List<GitHubCommit> list = gitHubService.getCommits(repoUser, repoName, ghc.getPath(), clientId, clientSecret);
-			GitHubCommitter author = null;
-			for(GitHubCommit ghco : list) {
-				//System.out.println(ghco);
-				author = ghco.getAuthor();
-				post.setAuthor(author.getLogin());
-			}
-			String title = text.substring(0, text.indexOf(System.getProperty("line.separator"))).replaceAll("[^\\w\\d\\s]", "").trim();
-			post.setTitle(title);
-
-            //TODO add date parameters to post from ghc path
-			postService.createPost(title, flexmarkService.parseMarkdown(text), author.getLogin());
-		}
+//        List<GitHubContent> res = gitHubService.getFiles(repoUser, repoName, repoMainDir, clientId, clientSecret);
+//        for(GitHubContent ghc : res) {
+//        	Post post = new Post();
+//            System.out.println(ghc);
+//			URLConnection connection = new URL(ghc.getDownloadUrl()).openConnection();
+//			String text = new Scanner(connection.getInputStream()).useDelimiter("\\Z").next();
+//			post.setContent(text);
+//			//System.out.println("title: " + text.substring(0, text.indexOf(System.getProperty("line.separator")) + 1));
+//			List<GitHubCommit> list = gitHubService.getCommits(repoUser, repoName, ghc.getPath(), clientId, clientSecret);
+//			GitHubCommitter author = null;
+//			for(GitHubCommit ghco : list) {
+//				//System.out.println(ghco);
+//				author = ghco.getAuthor();
+//				post.setAuthor(author.getLogin());
+//			}
+//			String title = text.substring(0, text.indexOf(System.getProperty("line.separator"))).replaceAll("[^\\w\\d\\s]", "").trim();
+//			post.setTitle(title);
+//
+//            //TODO add date parameters to post from ghc path
+//			postService.createPost(title, flexmarkService.parseMarkdown(text), author.getLogin());
+//		}
 
 //		TODO make this better version
         GitHubContent article = gitHubService.getArticlesRoot(repoUser, repoName, repoMainDir, clientId, clientSecret);
