@@ -27,7 +27,7 @@ public class BlogController {
             pageNum = Integer.valueOf(page);
         } catch (NumberFormatException e) {}
         Pageable window = new PageRequest(pageNum,10);
-        model.addAttribute("posts", postRepository.findAll(window));
+        model.addAttribute("posts", postRepository.findAllByOrderByTimestampDesc(window));
         boolean first = pageNum.equals(0) ? true : false;
         long size = postRepository.count();
         boolean last = (size - (pageNum * 10)) <= 10 ? true : false;

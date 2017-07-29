@@ -8,14 +8,14 @@
 <div th:fragment="posts">
     <section th:each="post :${posts}" class="post">
         <header class="post-header">
-
+            <img width="48" height="48" alt="Tilo Mitra's avatar" class="post-avatar" th:src="${post.avatarUrl}" />
             <a href="post.html" th:href="@{/post/{year}/{month}/{day}/{title}(year=${post.year},month=${post.month},day=${post.day},title=${post.urlTitle})}">
                 <h2 class="post-title" th:text="${post.title}">Title</h2>
             </a>
 
 
             <p class="post-meta">
-                By <a href="#" class="post-author" th:text="${post.author}">Author</a> under
+                By <a th:href="${post.authorUrl}" class="post-author" th:text="${post.author}">Author</a> under
                 <span th:each="tag : ${post.tags}">
                 <a th:class="'post-category ' + ${tag.style}" href="#" th:text="${tag.name}">Tag</a>
             </span>
@@ -23,7 +23,7 @@
         </header>
 
         <div class="post-description">
-            <p th:text="${#strings.substring(post.content,0,250)} + '...'">
+            <p th:utext="${#strings.substring(post.content,0,200)} + '...'">
                 Content
             </p>
         </div>

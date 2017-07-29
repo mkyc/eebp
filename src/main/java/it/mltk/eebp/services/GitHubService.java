@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 public class GitHubService {
 
     private static final String API_URL = "https://api.github.com";
-    private static final HttpLoggingInterceptor.Level level = HttpLoggingInterceptor.Level.NONE;
+    private static final HttpLoggingInterceptor.Level level = HttpLoggingInterceptor.Level.BODY;
 
     @Value("${eebp.repoMainDir}")
     private String repoMainDir;
@@ -119,11 +119,12 @@ public class GitHubService {
                     String text = new Scanner(connection.getInputStream()).useDelimiter("\\Z").next();
                     Matcher m = Pattern.compile("(?m)^Tags:.*$").matcher(text);
                     String[] tags = null;
-                    //TODO make it read just first occurence of such line
                     while (m.find()) {
                         String tagsLine = m.group().replaceAll("Tags:", "").trim();
                         tags = tagsLine.split(",");
+                        break;
                     }
+                    text = text.replaceFirst("(?m)^Tags.*", "");
                     Post p = preparePost(text, author, tags, ghtn);
                     System.out.println(p);
                     if(p!= null) {
@@ -139,7 +140,7 @@ public class GitHubService {
         Post result = new Post();
         String title = text.substring(0, text.indexOf(System.getProperty("line.separator"))).replaceAll("[^\\w\\d\\s]", "").trim();
         System.out.println(title);
-        String content = flexmarkService.parseMarkdown(text);
+        String content = flexmarkService.parseMarkdown(text.substring(text.indexOf(System.getProperty("line.separator")), text.length()));
         ArrayList<Tag> tt = new ArrayList<>();
         for(String s : tags) {
             Tag t = tagRepository.findByName(s.trim());
@@ -150,6 +151,8 @@ public class GitHubService {
             tt.add(t);
         }
         String author = committer.getLogin();
+        String authorUrl = committer.getHtmlUrl();
+        String avatarUrl = committer.getAvatarUrl();
         String urlTitle = title.replaceAll("\\W", "");
         String[] pathElements = this.extractPathElements(ghtn.getPath());
         result.setTitle(title);
@@ -157,6 +160,8 @@ public class GitHubService {
         result.setTags(tt);
         result.setAuthor(author);
         result.setUrlTitle(urlTitle);
+        result.setAuthorUrl(authorUrl);
+        result.setAvatarUrl(avatarUrl);
         LocalDateTime ldt = LocalDateTime.now();
         LocalTime lt = ldt.toLocalTime();
         LocalDate ld = ldt.toLocalDate();

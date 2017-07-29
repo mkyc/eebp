@@ -22,6 +22,8 @@ public @Data class Post {
     private String content;
     private ArrayList<Tag> tags;
     private String author;
+    private String authorUrl;
+    private String avatarUrl;
     private int year;
     private int month;
     private int day;
