@@ -4,6 +4,8 @@ import it.mltk.eebp.utils.StyleHelper;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.security.NoSuchAlgorithmException;
+
 /**
  * Created by mateusz on 09.07.2017.
  */
@@ -19,7 +21,11 @@ public @Data class Tag {
     public Tag(String name) {
 
         this.name = name;
-        this.style = StyleHelper.getRandomPostCategoryStyle();
+        try {
+            this.style = StyleHelper.getRandomPostCategoryStyle(name);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
 }

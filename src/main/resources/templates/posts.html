@@ -17,7 +17,7 @@
             <p class="post-meta">
                 By <a th:href="${post.authorUrl}" class="post-author" th:text="${post.author}">Author</a> under
                 <span th:each="tag : ${post.tags}">
-                <a th:class="'post-category ' + ${tag.style}" href="#" th:text="${tag.name}">Tag</a>
+                <a th:class="post-category" th:style="'background: #' + ${tag.style}" th:href="@{/(tag=${tag.name})}" th:text="${tag.name}">Tag</a>
             </span>
             </p>
         </header>

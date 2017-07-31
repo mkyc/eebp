@@ -1,6 +1,8 @@
 package it.mltk.eebp.controllers;
 
+import it.mltk.eebp.entity.Tag;
 import it.mltk.eebp.repo.PostRepository;
+import it.mltk.eebp.repo.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by mateusz on 10.07.2017.
@@ -19,21 +23,33 @@ public class BlogController {
 
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private TagRepository tagRepository;
 
     @RequestMapping("/")
-    public String recentPosts(@RequestParam(value = "page", defaultValue = "0", required = false) String page, Model model) {
+    public String recentPosts(
+            @RequestParam(value = "page", defaultValue = "0", required = false) String page,
+            @RequestParam(value = "tag", required = false) String tag,
+            Model model) throws NoSuchAlgorithmException {
         Integer pageNum = 0;
         try{
             pageNum = Integer.valueOf(page);
         } catch (NumberFormatException e) {}
         Pageable window = new PageRequest(pageNum,10);
-        model.addAttribute("posts", postRepository.findAllByOrderByTimestampDesc(window));
+        if(tag == null) {
+            model.addAttribute("posts", postRepository.findAllByOrderByTimestampDesc(window));
+        } else {
+            Tag t = tagRepository.findByName(tag);
+            model.addAttribute("posts", postRepository.findAllByTagsOrderByTimestampDesc(t, window));
+        }
+
         boolean first = pageNum.equals(0) ? true : false;
         long size = postRepository.count();
         boolean last = (size - (pageNum * 10)) <= 10 ? true : false;
         model.addAttribute("first", first);
         model.addAttribute("last", last);
         model.addAttribute("page", pageNum);
+        model.addAttribute("tags", tagRepository.findAll());
         return "main";
     }
 
