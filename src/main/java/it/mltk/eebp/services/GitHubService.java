@@ -1,6 +1,7 @@
 package it.mltk.eebp.services;
 
 import it.mltk.eebp.entity.*;
+import it.mltk.eebp.exceptions.NotYetUpdatedException;
 import it.mltk.eebp.repo.PostRepository;
 import it.mltk.eebp.repo.TagRepository;
 import it.mltk.eebp.retrofit.GitHubRetrofit;
@@ -8,6 +9,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -25,17 +27,27 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.Thread.sleep;
+
 @Component
 public class GitHubService {
 
     private static final String API_URL = "https://api.github.com";
-    private static final HttpLoggingInterceptor.Level level = HttpLoggingInterceptor.Level.BODY;
-
-    @Value("${eebp.repoMainDir}")
-    private String repoMainDir;
+    private static final HttpLoggingInterceptor.Level level = HttpLoggingInterceptor.Level.BASIC;
 
     Retrofit retrofit;
-    GitHubRetrofit github;
+    GitHubRetrofit gitHubRetrofit;
+
+    @Value("${eebp.clientId}")
+    private String clientId;
+    @Value("${eebp.clientSecret}")
+    private String clientSecret;
+    @Value("${eebp.repoName}")
+    private String repoName;
+    @Value("${eebp.repoUser}")
+    private String repoUser;
+    @Value("${eebp.repoMainDir}")
+    private String repoMainDir;
 
     @Autowired
     private FlexmarkService flexmarkService;
@@ -54,17 +66,17 @@ public class GitHubService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient.build())
                 .build();
-        github = retrofit.create(GitHubRetrofit.class);
+        gitHubRetrofit = retrofit.create(GitHubRetrofit.class);
 
     }
 
     public List<GitHubContent> getContent(String user, String repo, String path, String clientId, String clientSecret) throws IOException {
-        Call<List<GitHubContent>> call = github.repoContent(user, repo, path, clientId, clientSecret);
+        Call<List<GitHubContent>> call = gitHubRetrofit.repoContent(user, repo, path, clientId, clientSecret);
         return call.execute().body();
     }
 
     public GitHubContent getSingleContent(String user, String repo, String path, String clientId, String clientSecret) throws IOException {
-        Call<GitHubContent> call = github.repoSingleContent(user, repo, path, clientId, clientSecret);
+        Call<GitHubContent> call = gitHubRetrofit.repoSingleContent(user, repo, path, clientId, clientSecret);
         return call.execute().body();
     }
 
@@ -78,65 +90,37 @@ public class GitHubService {
         return null;
     }
 
-    public List<GitHubContent> getFiles(String user, String repo, String path, String clientId, String clientSecret) throws IOException {
-        List<GitHubContent> result = new ArrayList<>();
-        for(GitHubContent ghc : this.getContent(user, repo, path, clientId, clientSecret)) {
-            if(ghc.getType().equals("dir")) {
-                result.addAll(this.getFiles(user, repo, path + "/" + ghc.getName(), clientId, clientSecret));
-            } else if(ghc.getType().equals("file")) {
-                result.add(ghc);
-            }
-        }
-        return result;
-    }
-
     public GitHubTree getTree(String user, String repo, String sha, String clientId, String clientSecret) throws IOException {
-        Call<GitHubTree> call = github.repoTree(user, repo, sha, clientId, clientSecret);
+        Call<GitHubTree> call = gitHubRetrofit.repoTree(user, repo, sha, clientId, clientSecret);
         return call.execute().body();
     }
 
     public List<GitHubCommit> getCommits(String user, String repo, String path, String clientId, String clientSecret) throws IOException {
-        Call<List<GitHubCommit>> call = github.repoCommit(user, repo, path, clientId, clientSecret);
+        Call<List<GitHubCommit>> call = gitHubRetrofit.repoCommit(user, repo, path, clientId, clientSecret);
         return call.execute().body();
     }
 
-    public void extractPosts(GitHubTree ght, String repoUser, String repoName, String clientId, String clientSecret) throws IOException {
+    private Post createNewPost(GitHubTreeNode gitHubTreeNode) throws IOException {
 
-        for(GitHubTreeNode ghtn : ght.getTree()) {
-            if(ghtn.getType().equals("blob")) {
-                if(false) {
-                    //TODO check if path and sha are already in database.
-                } else {
-                    List<GitHubCommit> list = this.getCommits(repoUser, repoName, repoMainDir + "/" + ghtn.getPath(), clientId, clientSecret);
-                    GitHubCommitter author = null;
-                    for(GitHubCommit ghco : list) {
-                        author = ghco.getAuthor();
-                        System.out.println("author: " + author);
-                    }
-                    String blobPath = repoMainDir + "/" + ghtn.getPath();
-                    GitHubContent ghc = this.getSingleContent(repoUser, repoName, blobPath, clientId, clientSecret);
-                    URLConnection connection = new URL(ghc.getDownloadUrl()).openConnection();
-                    String text = new Scanner(connection.getInputStream()).useDelimiter("\\Z").next();
-                    Matcher m = Pattern.compile("(?m)^Tags:.*$").matcher(text);
-                    String[] tags = null;
-                    while (m.find()) {
-                        String tagsLine = m.group().replaceAll("Tags:", "").trim();
-                        tags = tagsLine.split(",");
-                        break;
-                    }
-                    text = text.replaceFirst("(?m)^Tags.*", "");
-                    Post p = preparePost(text, author, tags, ghtn);
-                    System.out.println(p);
-                    if(p!= null) {
-                        postRepository.save(p);
-                    }
-                }
-
-            }
+        List<GitHubCommit> list = this.getCommits(repoUser, repoName, repoMainDir + "/" + gitHubTreeNode.getPath(), clientId, clientSecret);
+        GitHubCommitter gitHubCommitter = null;
+        for(GitHubCommit gitHubCommit : list) {
+            gitHubCommitter = gitHubCommit.getAuthor();
+            System.out.println("author: " + gitHubCommitter);
         }
-    }
+        String blobPath = repoMainDir + "/" + gitHubTreeNode.getPath();
+        GitHubContent ghc = this.getSingleContent(repoUser, repoName, blobPath, clientId, clientSecret);
+        URLConnection connection = new URL(ghc.getDownloadUrl()).openConnection();
+        String text = new Scanner(connection.getInputStream()).useDelimiter("\\Z").next();
+        Matcher m = Pattern.compile("(?m)^Tags:.*$").matcher(text);
+        String[] tags = null;
+        while (m.find()) {
+            String tagsLine = m.group().replaceAll("Tags:", "").trim();
+            tags = tagsLine.split(",");
+            break;
+        }
+        text = text.replaceFirst("(?m)^Tags.*", "");
 
-    private Post preparePost(String text, GitHubCommitter committer, String[] tags, GitHubTreeNode ghtn) {
         Post result = new Post();
         String title = text.substring(0, text.indexOf(System.getProperty("line.separator"))).replaceAll("[^\\w\\d\\s]", "").trim();
         System.out.println(title);
@@ -150,11 +134,11 @@ public class GitHubService {
             }
             tt.add(t);
         }
-        String author = committer.getLogin();
-        String authorUrl = committer.getHtmlUrl();
-        String avatarUrl = committer.getAvatarUrl();
+        String author = gitHubCommitter.getLogin();
+        String authorUrl = gitHubCommitter.getHtmlUrl();
+        String avatarUrl = gitHubCommitter.getAvatarUrl();
         String urlTitle = title.replaceAll("\\W", "");
-        String[] pathElements = this.extractPathElements(ghtn.getPath());
+        String[] pathElements = this.extractPathElements(gitHubTreeNode.getPath());
         result.setTitle(title);
         result.setContent(content);
         result.setTags(tt);
@@ -162,10 +146,12 @@ public class GitHubService {
         result.setUrlTitle(urlTitle);
         result.setAuthorUrl(authorUrl);
         result.setAvatarUrl(avatarUrl);
+        result.setSha(gitHubTreeNode.getSha());
+        result.setPath(gitHubTreeNode.getPath());
         LocalDateTime ldt = LocalDateTime.now();
         LocalTime lt = ldt.toLocalTime();
         LocalDate ld = ldt.toLocalDate();
-        result.setTimestamp(lt);
+        result.setCreated(lt);
         if(pathElements != null) {
             result.setYear(Integer.valueOf(pathElements[0]));
             result.setMonth(Integer.valueOf(pathElements[1]));
@@ -179,14 +165,58 @@ public class GitHubService {
     }
 
     private String[] extractPathElements(String path) {
-//        System.out.println(path);
         String[] splittedPath = path.split("/");
-//        for(String s : splittedPath) {
-//            s = s.trim();
-//        }
         if(splittedPath.length == 4) {
             return splittedPath;
         }
         return null;
+    }
+
+    @Scheduled(fixedRate = 5000)
+    void scheduledCheck() throws IOException, InterruptedException {
+        GitHubContent article = getArticlesRoot(repoUser, repoName, repoMainDir, clientId, clientSecret);
+        GitHubTree ght = getTree(repoUser, repoName, article.getSha(), clientId, clientSecret);
+
+        for(GitHubTreeNode gitHubTreeNode : ght.getTree()) {
+            if(gitHubTreeNode.getType().equals("blob")) {
+                List<Post> testListWithPathAndSha = postRepository.findAllByPathAndSha(gitHubTreeNode.getPath(), gitHubTreeNode.getSha());
+                List<Post> testListWithPath = postRepository.findAllByPath(gitHubTreeNode.getPath());
+                if(testListWithPathAndSha != null && testListWithPathAndSha.size() == 1) {
+                    //nothing to do
+                    System.out.println("is good: " + gitHubTreeNode.getPath());
+                } else if (testListWithPath != null && testListWithPath.size() == 1) {
+                    //update
+                    System.out.println("update " + gitHubTreeNode.getPath());
+                    Post p = null;
+                    do {
+                        try {
+                            p = this.updatePost(testListWithPath.get(0), gitHubTreeNode);
+                        } catch (NotYetUpdatedException e) {
+                            e.printStackTrace();
+                            sleep(1000);
+                        }
+                    } while (p != null);
+                    System.out.println(p);
+                    postRepository.save(p);
+                } else {
+                    //create new
+                    Post post = createNewPost(gitHubTreeNode);
+                    if(post!= null) {
+                        System.out.println(post);
+                        postRepository.save(post);
+                    }
+                }
+
+            }
+        }
+    }
+
+    private Post updatePost(Post post, GitHubTreeNode gitHubTreeNode) throws IOException, NotYetUpdatedException {
+        Post newPost = this.createNewPost(gitHubTreeNode);
+        if(newPost.getSha() == post.getSha()) {
+            throw new NotYetUpdatedException();
+        }
+        post.update(newPost);
+        return post;
     }
 }

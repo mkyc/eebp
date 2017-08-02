@@ -5,8 +5,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
@@ -24,24 +22,28 @@ public @Data class Post {
     private String author;
     private String authorUrl;
     private String avatarUrl;
+    private String sha;
+    private String path;
     private int year;
     private int month;
     private int day;
-    private LocalTime timestamp;
+    private LocalTime created;
+    private LocalTime updated;
     private String urlTitle;
 
-    public Post(String title, String content, ArrayList<Tag> tags, String author) {
-        this.title = title;
-        this.content = content;
-        this.author = author;
-        this.tags = tags;
-        LocalDateTime ldt = LocalDateTime.now();
-        LocalTime lt = ldt.toLocalTime();
-        LocalDate ld = ldt.toLocalDate();
-        this.timestamp = lt;
-        this.year = ld.getYear();
-        this.month = ld.getMonthValue();
-        this.day = ld.getDayOfMonth();
-        this.urlTitle = title.replaceAll("\\W", "");
+    public void update(Post post) {
+        this.title = post.title;
+        this.content = post.content;
+        this.tags = post.tags;
+        this.author = post.author;
+        this.authorUrl = post.authorUrl;
+        this.avatarUrl = post.avatarUrl;
+        this.sha = post.sha;
+        this.path = post.path;
+        this.year = post.year;
+        this.month = post.month;
+        this.day = post.day;
+        this.updated = LocalTime.now();
+        this.urlTitle = post.urlTitle;
     }
 }

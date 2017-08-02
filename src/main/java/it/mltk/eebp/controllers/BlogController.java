@@ -37,10 +37,10 @@ public class BlogController {
         } catch (NumberFormatException e) {}
         Pageable window = new PageRequest(pageNum,10);
         if(tag == null) {
-            model.addAttribute("posts", postRepository.findAllByOrderByTimestampDesc(window));
+            model.addAttribute("posts", postRepository.findAllByOrderByCreatedDesc(window));
         } else {
             Tag t = tagRepository.findByName(tag);
-            model.addAttribute("posts", postRepository.findAllByTagsOrderByTimestampDesc(t, window));
+            model.addAttribute("posts", postRepository.findAllByTagsOrderByCreatedDesc(t, window));
         }
 
         boolean first = pageNum.equals(0) ? true : false;
