@@ -30,20 +30,4 @@ public @Data class Post {
     private LocalTime created;
     private LocalTime updated;
     private String urlTitle;
-
-    public void update(Post post) {
-        this.title = post.title;
-        this.content = post.content;
-        this.tags = post.tags;
-        this.author = post.author;
-        this.authorUrl = post.authorUrl;
-        this.avatarUrl = post.avatarUrl;
-        this.sha = post.sha;
-        this.path = post.path;
-        this.year = post.year;
-        this.month = post.month;
-        this.day = post.day;
-        this.updated = LocalTime.now();
-        this.urlTitle = post.urlTitle;
-    }
 }
