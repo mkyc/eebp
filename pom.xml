@@ -107,6 +107,60 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.21.0</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>mnemos/priv/${project.groupId}/${project.artifactId}:latest</name>
+                            <alias>eebp</alias>
+                            <build>
+                                <from>anapsix/alpine-java:8_jdk_unlimited</from>
+                                <assembly>
+                                    <descriptorRef>artifact</descriptorRef>
+                                </assembly>
+                                <cmd>java -jar -Dspring.profiles.active=production maven/${project.name}-${project.version}.jar</cmd>
+                            </build>
+                            <run>
+                                <ports>
+                                    <port>8080:8080</port>
+                                </ports>
+                                <wait>
+                                    <http>
+                                        <url>http://localhost:8080/</url>
+                                    </http>
+                                    <time>30000</time>
+                                </wait>
+                                <links>
+                                    <link>mongo:db</link>
+                                </links>
+                            </run>
+                        </image>
+
+                        <image>
+                            <alias>mongo</alias>
+                            <name>mongo</name>
+                            <run>
+                                <wait>
+                                    <log>waiting for connections on port 27017</log>
+                                    <time>20000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker:start</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>

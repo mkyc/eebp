@@ -8,3 +8,10 @@ eebp:
   repoName: mltk-it-articles
   repoUser: mkyc
   repoMainDir: articles
+
+---
+spring:
+  profiles: production
+  data:
+    mongodb:
+      uri: mongodb://db:27017/eedb
