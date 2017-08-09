@@ -3,9 +3,5 @@ jdk:
   - oraclejdk8
 services:
   - mongodb
-cache:
-  directories:
-    - $HOME/.m2
-install: false
 #before_script: travis_wait 45 ./mvnw install -q -U -DskipTests=true -Pfast -Dmaven.test.redirectTestOutputToFile=true
-script: mvn package docker:build -B -V
+script: mvn -B -V package docker:build
