@@ -8,7 +8,7 @@
 <div th:fragment="posts">
     <section th:each="post :${posts}" class="post">
         <header class="post-header">
-            <img width="48" height="48" alt="Tilo Mitra's avatar" class="post-avatar" th:src="${post.avatarUrl}" />
+            <img width="48" height="48" alt="Avatar" class="post-avatar" th:src="${post.avatarUrl}" />
             <a href="post.html" th:href="@{/post/{year}/{month}/{day}/{title}(year=${post.year},month=${post.month},day=${post.day},title=${post.urlTitle})}">
                 <h2 class="post-title" th:text="${post.title}">Title</h2>
             </a>
