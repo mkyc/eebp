@@ -114,7 +114,7 @@
                 <configuration>
                     <images>
                         <image>
-                            <name>mnemos/priv/${project.groupId}/${project.artifactId}:latest</name>
+                            <name>mnemos/eebp:latest</name>
                             <alias>eebp</alias>
                             <build>
                                 <from>anapsix/alpine-java:8_jdk_unlimited</from>
