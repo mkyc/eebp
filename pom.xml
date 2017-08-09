@@ -153,10 +153,10 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>docker:start</id>
+                        <id>docker:build</id>
                         <phase>install</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>build</goal>
                         </goals>
                     </execution>
                 </executions>
