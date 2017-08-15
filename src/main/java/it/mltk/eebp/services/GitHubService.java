@@ -77,7 +77,7 @@ public class GitHubService {
             GitHubTree ght = getTree(article.getSha());
 
             for (GitHubTreeNode gitHubTreeNode : ght.getTree()) {
-                if (gitHubTreeNode.getType().equals("blob")) {
+                if (gitHubTreeNode.getType().equals("blob") && gitHubTreeNode.getPath().endsWith(".md")) {
                     Post testWithPathAndSha = postRepository.findOneByPathAndSha(gitHubTreeNode.getPath(), gitHubTreeNode.getSha());
                     Post testWithPath = postRepository.findOneByPath(gitHubTreeNode.getPath());
                     if (testWithPathAndSha != null) {
