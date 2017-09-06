@@ -4,6 +4,7 @@ import it.mltk.eebp.entity.Tag;
 import it.mltk.eebp.repo.PostRepository;
 import it.mltk.eebp.repo.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,8 @@ import java.security.NoSuchAlgorithmException;
 public class BlogController {
 
 
+    @Value("${google.analytics.trackingId}")
+    private String googleAnalyticsTrackingId;
     @Autowired
     private PostRepository postRepository;
     @Autowired
@@ -50,6 +53,7 @@ public class BlogController {
         model.addAttribute("last", last);
         model.addAttribute("page", pageNum);
         model.addAttribute("tags", tagRepository.findAll());
+        model.addAttribute("gatid", googleAnalyticsTrackingId);
         return "main";
     }
 
@@ -68,6 +72,7 @@ public class BlogController {
             dayNum = Integer.valueOf(day);
         } catch (NumberFormatException e) {}
         model.addAttribute("post", postRepository.findOneByYearAndMonthAndDayAndUrlTitle(yearNum, monthNum, dayNum, title));
+        model.addAttribute("gatid", googleAnalyticsTrackingId);
         return "post";
     }
 }

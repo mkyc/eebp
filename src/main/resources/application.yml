@@ -9,6 +9,10 @@ eebp:
   repoUser: mkyc
   repoMainDir: articles
 
+google:
+  analytics:
+    trackingId: UA-XXXXXXXXX-X
+
 ---
 spring:
   profiles: production
